@@ -1,5 +1,7 @@
 import os
 import re
+import sys
+from io import StringIO
 
 from dotenv import load_dotenv
 
@@ -29,6 +31,22 @@ async def on_member_join(member):
     )
 '''
 
+# Handles running the code in the specified language
+# Returns the output from running the code with the exit status
+def codeDriver(lang, code):
+    if (lang == 'python'):
+        print("here!")
+        old_stdout = sys.stdout
+        sys.stdout = my_stdout = StringIO()
+        eval(code)
+        sys.stdout = old_stdout
+        output = my_stdout.getvalue()
+        return 0, output 
+    else:
+        print("wtf")
+        return -1, None
+
+
 # Handles the command events
 
 @bot.command(name='comp', help='Compiles the code inputed in the language specified.')
@@ -44,9 +62,10 @@ async def comp(ctx, *, arg=""):
             response = 'Incorrect Command Syntex: must specify language directly after the left "```".'
         else:
             # Extracts language and code from the argument
-            lang = lang_temp.group()[3:]
+            lang = lang_temp.group()[3:-1]
             code = arg[3+len(lang):-3]
-            response += lang + "\n" + code
+            exit_status, output = codeDriver(lang, code)
+            response += output
     await ctx.send(response)
     
 
