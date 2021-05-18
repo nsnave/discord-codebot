@@ -1,4 +1,5 @@
 import os
+import re
 
 from dotenv import load_dotenv
 
@@ -32,8 +33,20 @@ async def on_member_join(member):
 
 @bot.command(name='comp', help='Compiles the code inputed in the language specified.')
 async def comp(ctx, *, arg=""):
-    response = "test test\n"
-    response += arg
+    response = "Output:\n"
+    # Checks that the argument is in the correct format
+    if (len(arg) >= 6 and arg[:3] != '```' or arg[-3:] != '```'):
+        response = 'Incorrect Comand Syntax: argument must be enclosed by "```".'
+    else:
+        # Checks that the language is provided in the argument
+        lang_temp = re.search('```.+[\n ]', arg)
+        if (lang_temp == None):
+            response = 'Incorrect Command Syntex: must specify language directly after the left "```".'
+        else:
+            # Extracts language and code from the argument
+            lang = lang_temp.group()[3:]
+            code = arg[3+len(lang):-3]
+            response += lang + "\n" + code
     await ctx.send(response)
     
 
