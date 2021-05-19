@@ -1,11 +1,9 @@
 import os
 import re
-import sys
-from io import StringIO
 
 from dotenv import load_dotenv
-
 from discord.ext import commands
+from runcode import CodeDriver
 
 # Loads dotenv (used to get env variables)
 load_dotenv()
@@ -31,27 +29,10 @@ async def on_member_join(member):
     )
 '''
 
-# Handles running the code in the specified language
-# Returns the output from running the code with the exit status
-def codeDriver(lang, code):
-    if (lang == 'python'):
-        print("here!")
-        old_stdout = sys.stdout
-        sys.stdout = my_stdout = StringIO()
-        eval(code)
-        sys.stdout = old_stdout
-        output = my_stdout.getvalue()
-        return 0, output 
-    else:
-        print("wtf")
-        return -1, None
-
-
 # Handles the command events
 
 @bot.command(name='comp', help='Compiles the code inputed in the language specified.')
 async def comp(ctx, *, arg=""):
-    response = "Output:\n"
     # Checks that the argument is in the correct format
     if (len(arg) >= 6 and arg[:3] != '```' or arg[-3:] != '```'):
         response = 'Incorrect Comand Syntax: argument must be enclosed by "```".'
@@ -64,8 +45,18 @@ async def comp(ctx, *, arg=""):
             # Extracts language and code from the argument
             lang = lang_temp.group()[3:-1]
             code = arg[3+len(lang):-3]
-            exit_status, output = codeDriver(lang, code)
-            response += output
+
+            # Runs code and formats the output
+            exit_status, output, error = CodeDriver.run(lang, code)
+            
+            response = "**Exit Status:** " + str(exit_status) + "\n"
+
+            if (len(output) > 0):
+                response += "**Output:**\n```\n" + output + "\n```"
+
+            if (len(error) > 0):
+                response += "**Errors:**\n```\n" + error + "\n```"
+
     await ctx.send(response)
     
 
