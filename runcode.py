@@ -14,6 +14,27 @@ class CodeDriver:
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
 
+    def handleCompiled(args, path, exec_path):
+        # Compiles the code
+        compiler_result = CodeDriver.handleSub(args)
+        
+        exit_status = compiler_result.returncode
+        output = compiler_result.stdout.decode("utf-8") 
+        error = compiler_result.stderr.decode("utf-8")
+        
+        # Runs compiled file if the code comiled succesfully
+        if (exit_status == 0):
+            run_result = CodeDriver.handleSub(exec_path)
+
+            exit_status = run_result.returncode
+            output += "\n" + run_result.stdout.decode("utf-8")
+            error += "\n" + run_result.stderr.decode("utf-8")
+
+            # Removes compiled file
+            os.remove(exec_path)
+        
+        return exit_status, output, error
+
     def run(lang, code):
         # Creates temporary file to writes code to it
         # Then runs the code appropriately
@@ -32,25 +53,9 @@ class CodeDriver:
                 output = result.stdout.decode("utf-8") 
                 error = result.stderr.decode("utf-8")   
             elif (lang == 'c'):
-                # Compiles C code
                 exec_path = path + "-exec"
-                compiler_result = CodeDriver.handleSub(['gcc', '-x', 'c', path, '-o', exec_path])
-                
-                exit_status = compiler_result.returncode
-                output = compiler_result.stdout.decode("utf-8") 
-                error = compiler_result.stderr.decode("utf-8")
-                
-                # Runs compiled executable if the code comiled succesfully
-                if (exit_status == 0):
-                    run_result = CodeDriver.handleSub(exec_path)
-
-                    exit_status = run_result.returncode
-                    output += "\n" + run_result.stdout.decode("utf-8")
-                    error += "\n" + run_result.stderr.decode("utf-8")
-
-                    # Removes created executable
-                    os.remove(exec_path)
-
+                args = ['gcc', '-x', 'c', path, '-o', exec_path]
+                exit_status, output, error = CodeDriver.handleCompiled(args, path, exec_path)
             else:
                 exit_status = -1
                 output = ""
