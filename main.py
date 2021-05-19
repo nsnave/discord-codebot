@@ -51,10 +51,10 @@ async def comp(ctx, *, arg=""):
             
             response = "**Exit Status:** " + str(exit_status) + "\n"
 
-            if (len(output) > 0):
+            if (len(output.strip()) > 0):
                 response += "**Output:**\n```\n" + output + "\n```"
 
-            if (len(error) > 0):
+            if (len(error.strip()) > 0):
                 response += "**Errors:**\n```\n" + error + "\n```"
 
     await ctx.send(response)
