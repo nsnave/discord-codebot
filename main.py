@@ -44,7 +44,7 @@ async def comp(ctx, *, arg=""):
         else:
             # Extracts language and code from the argument
             lang = lang_temp.group()[3:-1]
-            code = arg[3+len(lang):-3]
+            code = arg[3+len(lang):-3].lstrip()
 
             # Runs code and formats the output
             exit_status, output, error = CodeDriver.run(lang, code)
