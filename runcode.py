@@ -87,6 +87,10 @@ class CodeDriver:
                 # Runs JavaScript Code
                 result = CodeDriver.handleSub(['node', path])
                 exit_status, output, error = CodeDriver.unpack(result)
+            elif (lang == "bash"):
+                # Runs Bash Code
+                result = CodeDriver.handleSub(['bash', path])
+                exit_status, output, error = CodeDriver.unpack(result)
             else:
                 exit_status = -1
                 output = ""
