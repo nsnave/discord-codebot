@@ -82,7 +82,11 @@ class CodeDriver:
 
                     # Changes exit status if needed
                     if (adj == -2):
-                        exit_status = 1 
+                        exit_status = 1
+            elif (lang == "js" or lang == "javascript"):
+                # Runs JavaScript Code
+                result = CodeDriver.handleSub(['node', path])
+                exit_status, output, error = CodeDriver.unpack(result)
             else:
                 exit_status = -1
                 output = ""
