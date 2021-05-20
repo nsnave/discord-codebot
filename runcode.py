@@ -14,9 +14,9 @@ class CodeDriver:
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
 
-    def handleCompiled(args, path, exec_path):
+    def handleCompiled(comp_args, exec_args, exec_path):
         # Compiles the code
-        compiler_result = CodeDriver.handleSub(args)
+        compiler_result = CodeDriver.handleSub(comp_args)
         
         exit_status = compiler_result.returncode
         output = compiler_result.stdout.decode("utf-8") 
@@ -24,7 +24,7 @@ class CodeDriver:
         
         # Runs compiled file if the code comiled succesfully
         if (exit_status == 0):
-            run_result = CodeDriver.handleSub(exec_path)
+            run_result = CodeDriver.handleSub(exec_args)
 
             exit_status = run_result.returncode
             output += "\n" + run_result.stdout.decode("utf-8")
@@ -54,8 +54,13 @@ class CodeDriver:
                 error = result.stderr.decode("utf-8")   
             elif (lang == 'c'):
                 exec_path = path + "-exec"
-                args = ['gcc', '-x', 'c', path, '-o', exec_path]
-                exit_status, output, error = CodeDriver.handleCompiled(args, path, exec_path)
+                comp_args = ['gcc', '-x', 'c', path, '-o', exec_path]
+                exit_status, output, error = CodeDriver.handleCompiled(comp_args, exec_path, exec_path)
+            elif (lang == 'java'):
+                exec_path = path + "-exec.java"
+                comp_args = ['cp', path, exec_path]
+                exec_args = ['java', exec_path]
+                exit_status, output, error = CodeDriver.handleCompiled(comp_args, exec_args, exec_path)
             else:
                 exit_status = -1
                 output = ""
