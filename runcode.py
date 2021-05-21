@@ -62,6 +62,11 @@ class CodeDriver:
                 exec_path = path + "-exec"
                 comp_args = ['gcc', '-x', 'c', path, '-o', exec_path]
                 exit_status, output, error = CodeDriver.handleCompiled(comp_args, exec_path, exec_path)
+            elif (lang == 'c++'):
+                # Runs C code
+                exec_path = path + "-exec"
+                comp_args = ['g++', '-x', 'c++', path, '-o', exec_path]
+                exit_status, output, error = CodeDriver.handleCompiled(comp_args, exec_path, exec_path)
             elif (lang == 'java'):
                 # Runs Java code
                 exec_path = path + "-exec.java"
