@@ -9,7 +9,7 @@ from runcode import CodeDriver
 load_dotenv()
 
 # Gets the BashBot Discord Token env variable
-TOKEN = os.getenv('DISCORD_TOKEN')
+TOKEN = os.getenv('DISCORD_CODEBOT_TOKEN')
 
 # Sets up the bot
 bot = commands.Bot(command_prefix='>')
