@@ -9,6 +9,7 @@ import subprocess
 # Handles running the code in the specified language
 # Returns the output from running the code (stdout and stderr) with the exit status
 class CodeDriver:
+    # Unpacks the return code, stdout, and stderr from a subprocess.CompletedProcess object
     def unpack(result):
         exit_status = result.returncode
         output = result.stdout.decode("utf-8") 
@@ -16,12 +17,15 @@ class CodeDriver:
     
         return exit_status, output, error
     
+    # Runs a command-line command piping stdout and stderr
     def handleSub(args, input_arg=None):
         return subprocess.run(args, 
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE,
                             input=input_arg)
 
+    # Handles runing code that requires two command-line calls
+    # Typically, used for code that requires being compiled as opposed to an interpreter
     def handleCompiled(comp_args, exec_args, exec_path):
         # Compiles the code
         compiler_result = CodeDriver.handleSub(comp_args)
@@ -43,6 +47,8 @@ class CodeDriver:
         
         return exit_status, output, error
 
+    # Runs the code provided verbatim in `code` in the language specified by `lang`
+    # Returns the exit status, stdout, and stderr
     def run(lang, code):
         # Creates temporary file to writes code to it
         # Then runs the code appropriately
@@ -97,9 +103,10 @@ class CodeDriver:
                 result = CodeDriver.handleSub(['bash', path])
                 exit_status, output, error = CodeDriver.unpack(result)
             else:
+                # Language Not Supported
                 exit_status = -1
                 output = ""
-                error = ""
+                error = 'Language "' + lang + '" currently not supported. For a list of supported languages run the `lang` command.' 
 
         finally:
             os.remove(path)

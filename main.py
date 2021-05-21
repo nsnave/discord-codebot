@@ -1,3 +1,6 @@
+# Referenced
+# https://realpython.com/how-to-make-a-discord-bot-python/
+
 import os
 import re
 
@@ -5,13 +8,21 @@ from dotenv import load_dotenv
 from discord.ext import commands
 from runcode import CodeDriver
 
+
 # Loads dotenv (used to get env variables)
 load_dotenv()
 
 # Gets the BashBot Discord Token env variable
 TOKEN = os.getenv('DISCORD_CODEBOT_TOKEN')
 
-# Sets up the bot
+
+
+#############################################################################
+#                                                                           #
+#                               Bot Setup                                   #
+#                                                                           #
+#############################################################################
+
 bot = commands.Bot(command_prefix='>')
 
 # Handles the on_ready event
@@ -29,10 +40,16 @@ async def on_member_join(member):
     )
 '''
 
-# Handles the command events
 
-@bot.command(name='comp', help='Compiles the code inputed in the language specified.')
-async def comp(ctx, *, arg=""):
+
+#############################################################################
+#                                                                           #
+#                            Command Utilities                              #
+#                                                                           #
+#############################################################################
+
+# Runs the code contained in `arg` and formats the response
+def processCode(arg):
     # Checks that the argument is in the correct format
     if (len(arg) >= 6 and arg[:3] != '```' or arg[-3:] != '```'):
         response = 'Incorrect Comand Syntax: argument must be enclosed by "```".'
@@ -57,7 +74,32 @@ async def comp(ctx, *, arg=""):
             if (len(error.strip()) > 0):
                 response += "**Errors:**\n```\n" + error + "\n```"
 
-    await ctx.send(response)
+    return response
+
+
+
+#############################################################################
+#                                                                           #
+#                            Command Functions                              #
+#                                                                           #
+#############################################################################
+
+# The `code` command, used to run code based on user input
+@bot.command(name='code', help='Runs the code inputed in the language specified.')
+async def code(ctx, *, arg=""):
+    await ctx.send(processCode(arg))
     
 
+@bot.command(name='c', help='The same as `code`.')
+async def c(ctx, *, arg=""):
+    await ctx.send(processCode(arg))
+    
+
+
+
+
+# Runs the bot
 bot.run(TOKEN)
+
+
+
