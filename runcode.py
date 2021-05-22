@@ -30,17 +30,17 @@ class CodeDriver:
         # Compiles the code
         compiler_result = CodeDriver.handleSub(comp_args)
         
-        exit_status = compiler_result.returncode
-        output = compiler_result.stdout.decode("utf-8") 
-        error = compiler_result.stderr.decode("utf-8")
+        exit_status, output, error = CodeDriver.unpack(compiler_result)
         
         # Runs compiled file if the code comiled succesfully
         if (exit_status == 0):
             run_result = CodeDriver.handleSub(exec_args)
 
-            exit_status = run_result.returncode
-            output += "\n" + run_result.stdout.decode("utf-8")
-            error += "\n" + run_result.stderr.decode("utf-8")
+            run_exit, run_out, run_err = CodeDriver.unpack(run_result)
+
+            exit_status = run_exit
+            output += "\n" + run_out
+            error += "\n" + run_err
 
             # Removes compiled file
             os.remove(exec_path)
