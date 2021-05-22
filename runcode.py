@@ -106,7 +106,7 @@ class CodeDriver:
                 # Language Not Supported
                 exit_status = -1
                 output = ""
-                error = 'Language "' + lang + '" currently not supported. For a list of supported languages run the `lang` command.' 
+                error = 'Language "' + lang + '" is currently not supported. For a list of supported languages run the `help code` command.' 
 
         finally:
             os.remove(path)

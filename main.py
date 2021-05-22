@@ -48,8 +48,39 @@ async def on_member_join(member):
 #                                                                           #
 #############################################################################
 
-# Runs the code contained in `arg` and formats the response
-def processCode(arg):
+# Empty for now...
+
+
+
+#############################################################################
+#                                                                           #
+#                            Command Functions                              #
+#                                                                           #
+#############################################################################
+
+# The `code` command, used to run code based on user input
+# Extracts the code contained in `arg` and formats the response
+@bot.command(name='code', aliases=['c', 'comp'], 
+help='''
+Runs the code inputed in the language specified. 
+Can also be invoked by `c` or `comp`.
+
+CodeBot currently supports the following languages:
+    Bash        (bash)
+    C           (c)
+    C++         (c++)
+    Java        (java)
+    JavaScript  (javascript, js)
+    Python      (python)
+    SML/NJ      (sml)
+
+To run code in one of these languages run the following command, replacing `lang` with the string in parenthesis above corresponding to your desired language:
+>code `​`​`lang
+input your code here
+`​`​`
+''')
+async def code(ctx, *, arg=""):
+
     # Checks that the argument is in the correct format
     if (len(arg) >= 6 and arg[:3] != '```' or arg[-3:] != '```'):
         response = 'Incorrect Comand Syntax: argument must be enclosed by "```".'
@@ -74,28 +105,14 @@ def processCode(arg):
             if (len(error.strip()) > 0):
                 response += "**Errors:**\n```\n" + error + "\n```"
 
-    return response
+    await ctx.send(response)
 
-
-
-#############################################################################
-#                                                                           #
-#                            Command Functions                              #
-#                                                                           #
-#############################################################################
-
-# The `code` command, used to run code based on user input
-@bot.command(name='code', help='Runs the code inputed in the language specified.')
-async def code(ctx, *, arg=""):
-    await ctx.send(processCode(arg))
-    
-
-@bot.command(name='c', help='The same as `code`.')
-async def c(ctx, *, arg=""):
-    await ctx.send(processCode(arg))
-    
-
-
+'''
+# The `again` command, used to re-run the user's most recent `code` command in the 
+# channel the user used to call the `again` command
+@bot.command(name='code', aliases=['c', 'comp'], help='')
+async def again(ctx):
+'''
 
 
 # Runs the bot
