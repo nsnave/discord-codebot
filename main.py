@@ -121,6 +121,11 @@ async def code(ctx, *, arg=""):
                 # Runs the code and gets the response
                 response = runCode(lang, code)
 
+    response = response.strip()
+    # Truncates the response if it exceeds the 2000 character limit
+    if (len(response) > 2000):
+        response = response[:1973] + "...\n(char limit reached)```"
+
     await ctx.reply(response)
 
 '''
