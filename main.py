@@ -106,7 +106,7 @@ async def code(ctx, *, arg=""):
             if (len(error.strip()) > 0):
                 response += "**Errors:**\n```\n" + error + "\n```"
 
-    await ctx.send(response)
+    await ctx.reply(response)
 
 '''
 # The `again` command, used to re-run the user's most recent `code` command in the 
