@@ -74,21 +74,29 @@ CodeBot currently supports the following languages:
     Python      (python)
     SML/NJ      (sml)
 
-To run code in one of these languages run the following command, replacing `lang` with the string in parenthesis above corresponding to your desired language:
+To run code in one of these languages, run the following command, replacing `lang` with the string in parenthesis above corresponding to your desired language:
 >code `​`​`lang
 input your code here
 `​`​`
+
+To run a single bash command, run:
+>code `input the command here`
 ''')
 async def code(ctx, *, arg=""):
+    '''
+    # Chekcs if argument is a bash command or code
+    cmd_temp = re.search('^`[^`].*`$')
+    if (code_temp != None):
+    '''
 
     # Checks that the argument is in the correct format
-    if (len(arg) >= 6 and arg[:3] != '```' or arg[-3:] != '```'):
+    if (len(arg) >= 6 and (arg[:3] != '```' or arg[-3:] != '```')):
         response = 'Incorrect Comand Syntax: argument must be enclosed by "```".'
     else:
         # Checks that the language is provided in the argument
         lang_temp = re.search('```.+[\n ]', arg)
         if (lang_temp == None):
-            response = 'Incorrect Command Syntex: must specify language directly after the left "```".'
+            response = 'Incorrect Command Syntax: must specify language directly after the left "```".'
         else:
             # Extracts language and code from the argument
             lang = lang_temp.group()[3:-1]
