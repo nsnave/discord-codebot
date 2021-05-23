@@ -95,7 +95,8 @@ async def code(ctx, *, arg=""):
             code = arg[3+len(lang):-3].lstrip()
 
             # Runs code and formats the output
-            exit_status, output, error = CodeDriver.run(lang, code)
+            driver = CodeDriver()
+            exit_status, output, error = driver.run(lang, code)
             
             response = "**Exit Status:** " + str(exit_status) + "\n"
 
