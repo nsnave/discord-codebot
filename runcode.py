@@ -1,9 +1,16 @@
 # Referenced:
 # https://stackoverflow.com/a/8577226/11039508
+# https://stackoverflow.com/a/2257449/11039508
 
 import os
 import tempfile
 import subprocess
+
+from sandbox import Sandbox
+import string
+import random
+import time
+import requests
 
 
 # Handles running the code in the specified language
@@ -118,10 +125,75 @@ class CodeDriver:
                 tmp.write(code)
 
             exit_status, output, error = self.runFile(lang, path)
-            
+        except:
+            exit_status = -1
+            output = ""
+            error = "CodeBot has encountered an unexpected error."
         finally:
             os.remove(path)
 
         return exit_status, output, error
 
+
+
+
+def genHere(input_arg):
+    new_here = lambda : ''.join(random.choices(string.ascii_uppercase + string.digits, k=32))
+    here = new_here()
+    while here in input_arg:
+        here = new_here()
+
+    return ' <<' + here + "\n" + input_arg + here
+
+
+# Child class of CodeDriver
+# Handles running the code in the specified language within a secure sandboxed environment
+# Returns the output from running the code (stdout and stderr) with the exit status
+class CodeDriverSecure(CodeDriver):
+
+    def unpack(self, obj):
+        return obj['exit'], obj['out'], obj['err']
+
+    def handleSub(self, args, input_arg=None):
+
+        cmd = " ".join(args)
+
+        if (input_arg != None):
+            cmd += genHere(input_arg)
+
+        return self.sandbox.exec(cmd)
+
+    def run(self, lang, code):
+        # Creates sandbox
+        self.sandbox = Sandbox()
+        
+        # Waits for sandbox server to be running by attempting HEAD requests
+        addr = 'http://localhost:' + str(self.sandbox.port)
+        while True:
+            try:
+                requests.head(addr)
+                # If request didn't fail, sandbox server up
+                break
+            except:
+                # Still need to wait
+                time.sleep(0.01)
+
+        # Creates file containing code to run in the sandbox
+        path = "/.codebot/code"
+        cmd = "cat > " + path + genHere(code)
+        temp = self.sandbox.exec(cmd)
+
+        if (temp['exit'] != 0):
+            # Error occured while creating code file
+            exit_status = -1
+            output = ""
+            error = "CodeBot has encountered an unexpected error."
+        else:
+            # Runs the code in the sandbox
+            exit_status, output, error = self.runFile(lang, path)
+
+        # Closes the sandbox
+        del self.sandbox
+
+        return exit_status, output, error
 

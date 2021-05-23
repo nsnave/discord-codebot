@@ -1,6 +1,8 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import parse_qs
 import json
+import subprocess
+import time
 
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -27,57 +29,41 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(encrypted_token.encode('utf-8'))
     '''
 
+    # Handles HEAD requests, used for testing whether the server is running
+    def do_HEAD(self):
+        self.send_response(200)
+        self.end_headers()
+
+    # Runs the command specified by the parameter 'cmd' 
     def do_POST(self):
+        # Extracts command to run
         content_length = int(self.headers['Content-Length'])
         body = self.rfile.read(content_length)
 
         query = body.decode()
         cmd = parse_qs(query)['cmd'][0]
 
-        self.send_response(200)
-        self.end_headers()
+        # Runs the command and processes the result
+        result = subprocess.run([cmd], shell=True, 
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
 
         resp = {
-            'exit':0,
-            'out':cmd,
-            'err':'nope'
+            'exit':result.returncode,
+            'out':result.stdout.decode('utf-8'),
+            'err':result.stderr.decode('utf-8')
         }
         
-        self.wfile.write(json.dumps(resp).encode('utf-8'))
-
-    '''
-    def do_POST(self):
-        content_length = int(self.headers['Content-Length'])
-        body = self.rfile.read(content_length)
-
-        #gets voter
-        body = body.decode()
-        splt = body.split("&")
-
-        voter = splt[0].split('=')[1]
-
-        #gets vote by decrypting ciphertext and verifying signature
-        ciphertext, signed_token = vote_crypto.decode(splt[1].split('=')[1].replace("%7C", "|"))        
-        success, vote = process(voter, ciphertext, signed_token)
-
+        # Returns the result
         self.send_response(200)
         self.end_headers()
+        self.wfile.write(json.dumps(resp).encode('utf-8'))
 
-        if (success):
-            print("Vote recorded for voter {}".format(voter))
-            resp = 'Succesfully voted for \"{}\"\nThanks for voting!'.format(vote)
-        else:
-            print("Failed to record vote for {}".format(voter))
-            resp = 'Invalid vote: {}'.format(vote)
-            
-        self.wfile.write(resp.encode('utf-8'))
 
-        print("All Votes:")
-        print(votes)
-    '''
-
+# Starts running the command handler server in the sandbox
 print("Serving...")
 httpd = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
+print(time.time())
 httpd.serve_forever()
 
 

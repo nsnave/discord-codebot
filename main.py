@@ -6,7 +6,7 @@ import re
 
 from dotenv import load_dotenv
 from discord.ext import commands
-from runcode import CodeDriver
+from runcode import CodeDriver, CodeDriverSecure
 
 
 # Loads dotenv (used to get env variables)
@@ -95,7 +95,7 @@ async def code(ctx, *, arg=""):
             code = arg[3+len(lang):-3].lstrip()
 
             # Runs code and formats the output
-            driver = CodeDriver()
+            driver = CodeDriverSecure()
             exit_status, output, error = driver.run(lang, code)
             
             response = "**Exit Status:** " + str(exit_status) + "\n"
