@@ -157,7 +157,7 @@ class CodeDriverSecure(CodeDriver):
         obj = self.sandbox.exec(cmd)
         return obj['exit'], obj['out'], obj['err']
 
-    def run(self, lang, code):
+    def run(self, lang, code, cmd=False):
         # Creates sandbox
         self.sandbox = Sandbox()
         
@@ -172,20 +172,25 @@ class CodeDriverSecure(CodeDriver):
                 # Still need to wait
                 time.sleep(0.01)
 
-        # Creates file containing code to run in the sandbox
-        path = "/.codebot/code"
-        cmd = "cat > " + path + genHere(code)
-        temp = self.sandbox.exec(cmd)
-
-        if (temp['exit'] != 0):
-            # Error occured while creating code file
-            exit_status = -1
-            output = ""
-            error = "CodeBot has encountered an unexpected error."
-            ret = (exit_status, output, error)
+        if (cmd):
+            # We just need to run a single bash command
+            ret = self.handleSub([code])
         else:
-            # Runs the code in the sandbox
-            ret = self.runFile(lang, path)
+            # We need to run an entire file
+            # Creates file containing code to run in the sandbox
+            path = "/.codebot/code"
+            cmd = "cat > " + path + genHere(code)
+            temp = self.sandbox.exec(cmd)
+
+            if (temp['exit'] != 0):
+                # Error occured while creating code file
+                exit_status = -1
+                output = ""
+                error = "CodeBot has encountered an unexpected error."
+                ret = (exit_status, output, error)
+            else:
+                # Runs the code in the sandbox
+                ret = self.runFile(lang, path)
 
         # Closes the sandbox
         del self.sandbox

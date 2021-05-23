@@ -48,7 +48,21 @@ async def on_member_join(member):
 #                                                                           #
 #############################################################################
 
-# Empty for now...
+def runCode(lang, code, cmd=False):
+    # Runs code and formats the output
+    driver = CodeDriverSecure()
+    exit_status, output, error = driver.run(lang, code, cmd)
+    
+    response = "**Exit Status:** " + str(exit_status) + "\n"
+
+    if (len(output.strip()) > 0):
+        response += "**Output:**\n```\n" + output + "\n```"
+
+    if (len(error.strip()) > 0):
+        response += "**Errors:**\n```\n" + error + "\n```"
+
+    return response
+
 
 
 
@@ -83,36 +97,29 @@ To run a single bash command, run:
 >code `input the command here`
 ''')
 async def code(ctx, *, arg=""):
-    '''
+    
     # Chekcs if argument is a bash command or code
-    cmd_temp = re.search('^`[^`].*`$')
-    if (code_temp != None):
-    '''
-
-    # Checks that the argument is in the correct format
-    if (len(arg) >= 6 and (arg[:3] != '```' or arg[-3:] != '```')):
-        response = 'Incorrect Comand Syntax: argument must be enclosed by "```".'
+    cmd_temp = re.search('^`[^`].*`$', arg)
+    if (cmd_temp != None):
+        # Runs a single bash command and gets the response
+        cmd = cmd_temp.group()[1:-1]
+        response = runCode(None, cmd, True)
     else:
-        # Checks that the language is provided in the argument
-        lang_temp = re.search('```.+[\n ]', arg)
-        if (lang_temp == None):
-            response = 'Incorrect Command Syntax: must specify language directly after the left "```".'
+        # Checks that the argument is in the correct format
+        if (len(arg) >= 6 and (arg[:3] != '```' or arg[-3:] != '```')):
+            response = 'Incorrect Comand Syntax: argument must be enclosed by "```" or "`".'
         else:
-            # Extracts language and code from the argument
-            lang = lang_temp.group()[3:-1]
-            code = arg[3+len(lang):-3].lstrip()
+            # Checks that the language is provided in the argument
+            lang_temp = re.search('```.+[\n ]', arg)
+            if (lang_temp == None):
+                response = 'Incorrect Command Syntax: must specify language directly after the left "```".'
+            else:
+                # Extracts language and code from the argument
+                lang = lang_temp.group()[3:-1]
+                code = arg[3+len(lang):-3].lstrip()
 
-            # Runs code and formats the output
-            driver = CodeDriverSecure()
-            exit_status, output, error = driver.run(lang, code)
-            
-            response = "**Exit Status:** " + str(exit_status) + "\n"
-
-            if (len(output.strip()) > 0):
-                response += "**Output:**\n```\n" + output + "\n```"
-
-            if (len(error.strip()) > 0):
-                response += "**Errors:**\n```\n" + error + "\n```"
+                # Runs the code and gets the response
+                response = runCode(lang, code)
 
     await ctx.reply(response)
 
