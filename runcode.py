@@ -16,6 +16,9 @@ import requests
 # Handles running the code in the specified language
 # Returns the output from running the code (stdout and stderr) with the exit status
 class CodeDriver:
+    def removeFile(self, path):
+        os.remove(path)
+
     # Runs a command-line command piping stdout and stderr
     def handleSub(self, args, input_arg=None):
         result = subprocess.run(args, input=input_arg,
@@ -44,7 +47,7 @@ class CodeDriver:
             error += "\n" + run_err
 
             # Removes compiled file
-            os.remove(exec_path)
+            self.removeFile(exec_path)
         
         return exit_status, output, error
 
@@ -61,13 +64,15 @@ class CodeDriver:
             # Runs C code
             exec_path = path + "-exec"
             comp_args = ['gcc', '-x', 'c', path, '-o', exec_path]
-            return self.handleCompiled(comp_args, exec_path, exec_path)
+            exec_args = [exec_path]
+            return self.handleCompiled(comp_args, exec_args, exec_path)
         
         elif (lang == 'c++'):
             # Runs C code
             exec_path = path + "-exec"
             comp_args = ['g++', '-x', 'c++', path, '-o', exec_path]
-            return self.handleCompiled(comp_args, exec_path, exec_path)
+            exec_args = [exec_path]
+            return self.handleCompiled(comp_args, exec_args, exec_path)
         
         elif (lang == 'java'):
             # Runs Java code
@@ -126,7 +131,7 @@ class CodeDriver:
             output = ""
             error = "CodeBot has encountered an unexpected error."
         finally:
-            os.remove(path)
+            self.removeFile(path)
 
         return exit_status, output, error
 
@@ -146,6 +151,8 @@ def genHere(input_arg):
 # Handles running the code in the specified language within a secure sandboxed environment
 # Returns the output from running the code (stdout and stderr) with the exit status
 class CodeDriverSecure(CodeDriver):
+    def removeFile(self, path):
+        self.sandbox.exec("rm " + path)
 
     def handleSub(self, args, input_arg=None):
 
@@ -172,6 +179,7 @@ class CodeDriverSecure(CodeDriver):
                 # Still need to wait
                 time.sleep(0.01)
 
+        # Checks if we need to run a bash command or a file of code
         if (cmd):
             # We just need to run a single bash command
             ret = self.handleSub([code])
