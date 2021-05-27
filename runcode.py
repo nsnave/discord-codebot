@@ -21,7 +21,8 @@ class CodeDriver:
 
     # Runs a command-line command piping stdout and stderr
     def handleSub(self, args, input_arg=None):
-        result = subprocess.run(args, input=input_arg,
+        result = subprocess.run(args, 
+                                input=input_arg.encode('utf-8'),
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
         
@@ -84,7 +85,7 @@ class CodeDriver:
         elif (lang == "sml"):
             # Runs SML/NJ Code
             input_arg = 'use "' + path + '";\n'
-            exit_status, output, error = self.handleSub(['sml'], input_arg.encode('utf-8'))
+            exit_status, output, error = self.handleSub(['sml'], input_arg)
             
             if (exit_status == 0):
                 # Removes unneeded interpreter output
