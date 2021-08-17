@@ -134,7 +134,7 @@ async def code(ctx, *, arg=""):
 @bot.command(name='code', aliases=['c', 'comp'], help='')
 async def again(ctx):
 '''
-
+# TODO
 
 # Runs the bot
 bot.run(TOKEN)
